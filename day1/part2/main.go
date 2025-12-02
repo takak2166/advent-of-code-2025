@@ -2,33 +2,25 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/takak2166/advent-of-code-2025/common"
 )
 
 const (
 	initialPosition uint8 = 50
-	maxDial               = 100
+	maxDial         uint8 = 100
 )
 
 func main() {
-	session := os.Getenv("SESSION")
-	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://adventofcode.com/2025/day/1/input", nil)
-	req.AddCookie(&http.Cookie{Name: "session", Value: session})
-	resp, err := client.Do(req)
+	input, err := common.FetchInput(2025, 1)
 	if err != nil {
 		fmt.Println("Error fetching input:", err)
 		return
 	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-	input := string(body)
-	lines := strings.Split(input, "\n")
 
+	lines := strings.Split(input, "\n")
 	var count uint = 0
 	position := initialPosition
 	for _, line := range lines {
@@ -38,18 +30,17 @@ func main() {
 		}
 	}
 	fmt.Println("Number of times dialed to 0:", count)
-	return
 }
 
 func turn(position uint8, rotation string, count *uint) (nextPosition uint8) {
 	if strings.HasPrefix(rotation, "R") {
 		distance, _ := strconv.Atoi(strings.TrimPrefix(rotation, "R"))
 		tmpPosition := int(position) + distance
-		for tmpPosition >= maxDial {
-			tmpPosition -= maxDial
+		for tmpPosition >= int(maxDial) {
+			tmpPosition -= int(maxDial)
 			*count++
 		}
-		nextPosition = uint8(tmpPosition % maxDial)
+		nextPosition = uint8(tmpPosition % int(maxDial))
 		return
 	}
 	if strings.HasPrefix(rotation, "L") {
@@ -59,13 +50,13 @@ func turn(position uint8, rotation string, count *uint) (nextPosition uint8) {
 			*count--
 		}
 		for tmpPosition < 0 {
-			tmpPosition += maxDial
+			tmpPosition += int(maxDial)
 			*count++
 		}
 		if tmpPosition == 0 {
 			*count++
 		}
-		nextPosition = uint8(tmpPosition % maxDial)
+		nextPosition = uint8(tmpPosition % int(maxDial))
 		return
 	}
 	return 255
